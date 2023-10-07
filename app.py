@@ -1,6 +1,7 @@
 import tkinter as tk
 import cv2
 import os
+import datetime
 
 from tkinter import filedialog
 from PIL import Image, ImageTk
@@ -18,6 +19,8 @@ class CameraApp:
         self.menu_frame = tk.Frame(self.root)
         self.menu_frame.pack(side=tk.LEFT, padx=10, pady=10)
 
+        # ===== CAMERA ========
+
         # Create a frame for the camera view (right)
         self.camera_frame = tk.Frame(self.root)
         self.camera_frame.pack(side=tk.RIGHT, padx=10, pady=10)
@@ -25,6 +28,14 @@ class CameraApp:
         # Create labels and buttons
         self.camera_label = tk.Label(self.camera_frame)
         self.camera_label.pack()
+
+        # Create a button for capturing an image
+        self.capture_button = tk.Button(
+            self.camera_frame, text="Capture", command=self.capture_image)
+        self.capture_button.pack()
+
+        # Initialize a variable to store captured images
+        self.captured_images = []
 
         self.open_change_frame = tk.Frame(self.menu_frame)
         self.open_change_frame.pack(side=tk.TOP)
@@ -51,6 +62,10 @@ class CameraApp:
 
         self.show_directory()
         self.update_camera_frame()
+
+    '''
+    DIRECTORY FUNCTION
+    '''
 
     def create_settings(self):
         default_settings = {
@@ -136,9 +151,40 @@ class CameraApp:
         except Exception as e:
             print(f"An error occurred while updating the setting: {e}")
 
+    '''
+    UPLOAD
+    '''
+
     def upload_to_gdrive(self):
         # Implementasi logika untuk mengunggah gambar ke Google Drive
         pass
+
+    '''
+    CAMERA FEATURE
+    '''
+
+    def capture_image(self):
+        try:
+            ret, frame = self.cap.read()
+            if ret:
+                # Capture the image and save it
+                timestamp = datetime.datetime.now().strftime("%d")
+                image_filename = f"captured_{timestamp}.png"
+                image_path = os.path.join(self.dir, image_filename)
+                cv2.imwrite(image_path, frame)
+                self.captured_images.append(image_path)
+
+                # Display the captured image in the app (optional)
+                self.display_captured_image(image_path)
+        except Exception as e:
+            print(f'error : {e}')
+
+    def display_captured_image(self, image_path):
+        img = Image.open(image_path)
+        photo = ImageTk.PhotoImage(img)
+        image_label = tk.Label(self.camera_frame, image=photo)
+        image_label.photo = photo
+        image_label.grid(row=2, column=0, pady=10)
 
     def set_timer(self):
         # Implementasi logika untuk mengatur timer foto
