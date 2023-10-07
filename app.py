@@ -1,5 +1,6 @@
 import tkinter as tk
 import cv2
+import os
 
 from tkinter import filedialog
 from PIL import Image, ImageTk
@@ -73,8 +74,8 @@ class CameraApp:
                 settings[key.strip()] = value.strip()
 
             print(settings)
-
-            self.directory_label.config(text=settings.get('dir'))
+            self.dir = settings.get('dir')
+            self.directory_label.config(text=self.dir)
 
         except FileNotFoundError:
             self.create_settings()
@@ -82,16 +83,20 @@ class CameraApp:
             print(f"An error occurred: {e}")
 
     def open_directory(self):
-        # Implementasi logika untuk membuka direktori
-        pass
+        print(self.dir)
+        try:
+            os.startfile(self.dir)
+        except OSError as e:
+            print(f"Error opening folder: {e}")
 
     def change_directory(self):
-        global dir  # Declare dir as a global variable
         try:
+            temp_dir = ""
             new_directory = filedialog.askdirectory()  # Open a directory dialog
             if new_directory:
-                dir = new_directory
-                self.directory_label.config(text=f"Directory: {dir}")
+                temp_dir = new_directory
+                self.dir = temp_dir
+                self.directory_label.config(text=f"Directory: {self.dir}")
 
                 # Update the 'dir' setting in the setting.log file
                 # self.update_setting('dir', dir)
