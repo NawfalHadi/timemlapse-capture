@@ -61,7 +61,7 @@ class CameraApp:
 
         with open('setting.log', 'w') as settings_file:
             for key, value in default_settings.items():
-                settings_file.write(f'{key}: {value}\n')
+                settings_file.write(f'{key}= {value}\n')
 
     def show_directory(self):
         try:
@@ -70,7 +70,7 @@ class CameraApp:
                 lines = log.readlines()
 
             for line in lines:
-                key, value = line.strip().split(':')
+                key, value = line.strip().split('=')
                 settings[key.strip()] = value.strip()
 
             print(settings)
@@ -113,13 +113,13 @@ class CameraApp:
                 lines = log.readlines()
 
             for line in lines:
-                key_value_pair = line.strip().split(':')
+                key_value_pair = line.strip().split('=')
                 key_in_file = key_value_pair[0].strip()
                 value_in_file = key_value_pair[1].strip()
 
                 if key_in_file == setting_key:
                     # Update the key with the new value
-                    updated_line = f"{setting_key}: {setting_value}\n"
+                    updated_line = f"{setting_key}= {setting_value}\n"
                     updated_lines.append(updated_line)
                     key = setting_key
                 else:
