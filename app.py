@@ -99,10 +99,42 @@ class CameraApp:
                 self.directory_label.config(text=f"Directory: {self.dir}")
 
                 # Update the 'dir' setting in the setting.log file
-                # self.update_setting('dir', dir)
+                self.update_setting('dir', temp_dir)
 
         except Exception as e:
             print(f"An error occurred: {e}")
+
+    def update_setting(self, setting_key, setting_value):
+        try:
+            key = ""
+            updated_lines = []  # To store updated lines
+
+            with open('setting.log', 'r') as log:
+                lines = log.readlines()
+
+            for line in lines:
+                key_value_pair = line.strip().split(':')
+                key_in_file = key_value_pair[0].strip()
+                value_in_file = key_value_pair[1].strip()
+
+                if key_in_file == setting_key:
+                    # Update the key with the new value
+                    updated_line = f"{setting_key}: {setting_value}\n"
+                    updated_lines.append(updated_line)
+                    key = setting_key
+                else:
+                    # Keep the original line
+                    updated_lines.append(line)
+
+            if key:
+                # Write the updated content back to the file
+                with open('setting.log', 'w') as log:
+                    log.writelines(updated_lines)
+
+            print(key)
+
+        except Exception as e:
+            print(f"An error occurred while updating the setting: {e}")
 
     def upload_to_gdrive(self):
         # Implementasi logika untuk mengunggah gambar ke Google Drive
