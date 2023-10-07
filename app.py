@@ -3,6 +3,31 @@ import cv2
 from PIL import Image, ImageTk
 
 
+def create_settings():
+    default_settings = {
+        'dir': 'path',
+        'last_capt': '21 Desember 2002',
+        'frame': 'path'
+    }
+
+    # Write default settings to the settings file
+    with open('setting.log', 'w') as settings_file:
+        for key, value in default_settings.items():
+            settings_file.write(f'{key}: {value}\n')
+
+
+def show_directory():
+    try:
+        with open('setting.log', 'r') as log:
+            settings = log.read()
+
+            print(settings)
+    except FileNotFoundError:
+        create_settings()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def open_directory():
     # Implementasi logika untuk membuka direktori
     pass
@@ -27,6 +52,16 @@ def update_camera_frame():
     ret, frame = cap.read()
     if ret:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Dapatkan ukuran frame
+        height, width, channels = frame.shape
+
+        # Tentukan lebar yang akan digunakan untuk tampilan kamera
+        display_width = min(height, width)
+
+        # Potong gambar untuk menjaga proporsi aspek 1:1
+        frame = frame[0:display_width, 0:display_width]
+
         photo = ImageTk.PhotoImage(image=Image.fromarray(frame))
         camera_label.config(image=photo)
         camera_label.photo = photo
@@ -77,6 +112,7 @@ camera_frame.pack(side=tk.RIGHT, padx=10, pady=10)
 # Menampilkan kamera di tengah frame
 camera_label = tk.Label(camera_frame)
 camera_label.pack()
+show_directory()
 update_camera_frame()
 
 root.mainloop()
