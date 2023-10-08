@@ -10,6 +10,8 @@ from PIL import Image, ImageTk
 class CameraApp:
     def __init__(self):
         self.dir = "/path/to/directory"
+        self.guideline = r"C:/Users/nawfa/OneDrive/Pictures/Camera Roll\20231009.png"
+        self.previous_captured_image = None
         self.cap = cv2.VideoCapture(0)
 
         self.root = tk.Tk()
@@ -184,15 +186,37 @@ class CameraApp:
 
                 frame = cv2.flip(frame, 1)
 
-                # Capture the image and save it
-                timestamp = datetime.datetime.now().strftime("%Y%m%d")
-                image_filename = f"{timestamp}.png"
-                image_path = os.path.join(self.dir, image_filename)
-                cv2.imwrite(image_path, frame)
-                self.captured_images.append(image_path)
+                # Store the captured frame in the class variable
+                self.previous_captured_image = frame
 
-                self.update_setting("frame", image_path)
+                # Create a pop-up window for options
+                popup = tk.Toplevel(self.root)
+                popup.title("Capture Options")
 
+                # Set the pop-up window as a modal dialog
+                popup.grab_set()
+
+                # Create a label for the pop-up window
+                label = tk.Label(popup, text="Save as Frame or Cancel?")
+                label.pack(padx=10, pady=10)
+
+                # Display the previously captured image in the popup
+                if self.previous_captured_image is not None:
+                    photo = ImageTk.PhotoImage(
+                        image=Image.fromarray(self.previous_captured_image))
+                    image_label = tk.Label(popup, image=photo)
+                    image_label.photo = photo
+                    image_label.pack()
+
+                # Create a "Save as Frame" button
+                save_button = tk.Button(
+                    popup, text="Save as Frame", command=lambda: self.save_frame(frame, popup))
+                save_button.pack(pady=5)
+
+                # Create a "Cancel" button
+                cancel_button = tk.Button(
+                    popup, text="Cancel", command=popup.destroy)
+                cancel_button.pack(pady=5)
         except Exception as e:
             print(f'error : {e}')
 
@@ -225,7 +249,7 @@ class CameraApp:
             frame = cv2.flip(frame, 1)
 
             # Load and resize the guideline image to match the camera frame size
-            guideline_image = cv2.imread("image.png")
+            guideline_image = cv2.imread(self.guideline)
             guideline_image = cv2.resize(
                 guideline_image, (display_width, display_width))
 
@@ -238,6 +262,21 @@ class CameraApp:
         self.camera_label.config(image=photo)
         self.camera_label.photo = photo
         self.camera_label.after(10, self.update_camera_frame)
+
+    def save_frame(self, frame, popup):
+        try:
+            # Capture the image and save it
+            timestamp = datetime.datetime.now().strftime("%Y%m%d")
+            image_filename = f"{timestamp}.png"
+            image_path = os.path.join(self.dir, image_filename)
+            cv2.imwrite(image_path, frame)
+            self.captured_images.append(image_path)
+
+            self.update_setting("frame", image_path)
+
+            popup.destroy()
+        except Exception as e:
+            print(f'error : {e}')
 
     def run(self):
         self.root.mainloop()
