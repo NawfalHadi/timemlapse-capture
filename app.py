@@ -167,6 +167,11 @@ class CameraApp:
         try:
             ret, frame = self.cap.read()
             if ret:
+                # Crop the camera frame to make it square
+                height, width, _ = frame.shape
+                min_dim = min(height, width)
+                frame = frame[0:min_dim, 0:min_dim]
+
                 # Capture the image and save it
                 timestamp = datetime.datetime.now().strftime("%d")
                 image_filename = f"captured_{timestamp}.png"
@@ -174,17 +179,8 @@ class CameraApp:
                 cv2.imwrite(image_path, frame)
                 self.captured_images.append(image_path)
 
-                # Display the captured image in the app (optional)
-                self.display_captured_image(image_path)
         except Exception as e:
             print(f'error : {e}')
-
-    def display_captured_image(self, image_path):
-        img = Image.open(image_path)
-        photo = ImageTk.PhotoImage(img)
-        image_label = tk.Label(self.camera_frame, image=photo)
-        image_label.photo = photo
-        image_label.grid(row=2, column=0, pady=10)
 
     def set_timer(self):
         # Implementasi logika untuk mengatur timer foto
@@ -204,9 +200,19 @@ class CameraApp:
             # Crop the image to maintain a 1:1 aspect ratio
             frame = frame[0:display_width, 0:display_width]
 
-            photo = ImageTk.PhotoImage(image=Image.fromarray(frame))
-            self.camera_label.config(image=photo)
-            self.camera_label.photo = photo
+            # Load and resize the guideline image to match the camera frame size
+            guideline_image = cv2.imread("image.png")
+            guideline_image = cv2.resize(
+                guideline_image, (display_width, display_width))
+
+            # Blend the camera frame and guideline image with transparency
+            alpha = 0.2  # Adjust the alpha value for transparency
+            blended_frame = cv2.addWeighted(
+                frame, 1 - alpha, guideline_image, alpha, 0)
+
+        photo = ImageTk.PhotoImage(image=Image.fromarray(blended_frame))
+        self.camera_label.config(image=photo)
+        self.camera_label.photo = photo
         self.camera_label.after(10, self.update_camera_frame)
 
     def run(self):
