@@ -191,6 +191,8 @@ class CameraApp:
                 cv2.imwrite(image_path, frame)
                 self.captured_images.append(image_path)
 
+                self.update_setting("frame", image_path)
+
         except Exception as e:
             print(f'error : {e}')
 
