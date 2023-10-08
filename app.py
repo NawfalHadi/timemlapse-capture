@@ -185,8 +185,8 @@ class CameraApp:
                 frame = cv2.flip(frame, 1)
 
                 # Capture the image and save it
-                timestamp = datetime.datetime.now().strftime("%d")
-                image_filename = f"captured_{timestamp}.png"
+                timestamp = datetime.datetime.now().strftime("%Y%m%d")
+                image_filename = f"{timestamp}.png"
                 image_path = os.path.join(self.dir, image_filename)
                 cv2.imwrite(image_path, frame)
                 self.captured_images.append(image_path)
