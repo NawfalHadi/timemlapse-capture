@@ -2,6 +2,7 @@ import tkinter as tk
 import cv2
 import os
 import datetime
+import shutil
 
 from tkinter import filedialog
 from PIL import Image, ImageTk
@@ -58,9 +59,13 @@ class CameraApp:
             self.menu_frame, text="Upload to Google Drive", command=self.upload_to_gdrive)
         self.upload_button.pack()
 
-        self.upload_button = tk.Button(
+        self.default_guideline = tk.Button(
             self.menu_frame, text="Default Guideline", command=lambda: self.update_setting("frame", "image.png"))
-        self.upload_button.pack()
+        self.default_guideline.pack()
+
+        self.make_default = tk.Button(
+            self.menu_frame, text="Make Default", command=self.copy_guideline_image)
+        self.make_default.pack()
 
         self.timer_button = tk.Button(
             self.menu_frame, text="Set Timer", command=self.set_timer)
@@ -282,6 +287,26 @@ class CameraApp:
             popup.destroy()
         except Exception as e:
             print(f'error : {e}')
+
+    '''
+    IMAGE FEATURE
+    '''
+
+    def copy_guideline_image(self):
+        try:
+            if self.guideline:
+                # Extract the file name from self.guideline
+                guideline_filename = os.path.basename(self.guideline)
+
+                # Copy the guideline image to the current directory as "image.png"
+                shutil.copy(self.guideline, "image.png")
+
+                # Update the 'frame' setting in the setting.log file
+                self.update_setting('frame', "image.png")
+
+                print(f"Guideline image copied as image.png")
+        except Exception as e:
+            print(f'Error copying guideline image: {e}')
 
     def run(self):
         self.root.mainloop()
