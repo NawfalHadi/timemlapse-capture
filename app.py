@@ -58,6 +58,10 @@ class CameraApp:
             self.menu_frame, text="Upload to Google Drive", command=self.upload_to_gdrive)
         self.upload_button.pack()
 
+        self.upload_button = tk.Button(
+            self.menu_frame, text="Default Guideline", command=lambda: self.update_setting("frame", "image.png"))
+        self.upload_button.pack()
+
         self.timer_button = tk.Button(
             self.menu_frame, text="Set Timer", command=self.set_timer)
         self.timer_button.pack()
@@ -92,6 +96,7 @@ class CameraApp:
 
             print(settings)
             self.dir = settings.get('dir')
+            self.guideline = settings.get('frame')
             self.directory_label.config(text=self.dir)
 
         except FileNotFoundError:
