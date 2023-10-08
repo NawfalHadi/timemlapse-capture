@@ -170,7 +170,19 @@ class CameraApp:
                 # Crop the camera frame to make it square
                 height, width, _ = frame.shape
                 min_dim = min(height, width)
-                frame = frame[0:min_dim, 0:min_dim]
+
+                if height > width:
+                    y_start = (height - min_dim) // 2
+                    x_start = 0
+                else:
+                    y_start = 0
+                    x_start = (width - min_dim) // 2
+
+                # Crop the image to maintain a 1:1 aspect ratio
+                frame = frame[y_start:y_start + min_dim,
+                              x_start:x_start + min_dim]
+
+                frame = cv2.flip(frame, 1)
 
                 # Capture the image and save it
                 timestamp = datetime.datetime.now().strftime("%d")
@@ -197,8 +209,18 @@ class CameraApp:
             # Determine the width to be used for the camera display
             display_width = min(height, width)
 
+            if height > width:
+                y_start = (height - display_width) // 2
+                x_start = 0
+            else:
+                y_start = 0
+                x_start = (width - display_width) // 2
+
             # Crop the image to maintain a 1:1 aspect ratio
-            frame = frame[0:display_width, 0:display_width]
+            frame = frame[y_start:y_start + display_width,
+                          x_start:x_start + display_width]
+
+            frame = cv2.flip(frame, 1)
 
             # Load and resize the guideline image to match the camera frame size
             guideline_image = cv2.imread("image.png")
